@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String   @id @default(uuid())
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  email                 String   @unique
+  name                  String
+  gender                Gender
+  birthDate             DateTime @map("birth_date")
+  birthTime             String?  @map("birth_time")
+  privacyPolicyAccepted Boolean  @map("privacy_policy_accepted")
+  isSubscribedToOffers  Boolean  @default(false) @map("is_subscribed_to_offers")
+  phoneNumber           String?  @map("phone_number")
+
+  purchases Purchase[]
+
+  @@map("user")
+}
+
+model Offer {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  name      String
+  price     Int
+
+  purchases Purchase[]
+
+  @@map("offer")
+}
+
+model Purchase {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isCompleted Boolean  @default(false) @map("is_completed")
+
+  user  User  @relation(fields: [userId], references: [id])
+  offer Offer @relation(fields: [offerId], references: [id])
+
+  userId  String @map("user_id")
+  offerId String @map("offer_id")
+
+  @@map("purchase")
+}
+
+enum Gender {
+  Male
+  Female
+}
